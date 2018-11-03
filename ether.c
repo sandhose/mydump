@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <net/ethernet.h>
+#include <net/if_arp.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
 
@@ -43,11 +44,55 @@ static void handle_vlan(uint32_t length, const uint8_t *packet) {
   handle_ether_payload(htons(vlan->ether_type), length, packet);
 }
 
+static void handle_arp(uint32_t length, const uint8_t *packet) {
+  struct arphdr *arp = (struct arphdr *)packet;
+  APPLY_OVERHEAD(struct arphdr, length, packet);
+  uint16_t op = htons(arp->ar_op);
+
+  if ((arp->ar_hln + arp->ar_pln) * 2 > length) {
+    WARNF("ARP packet too small (op: %04x, hrd: %04x, pro: %04x, hln: %d, pln: %d)",
+          op, htons(arp->ar_hrd), htons(arp->ar_pro), arp->ar_hln, arp->ar_pln);
+    return;
+  }
+
+  // Let's assume it's IPv4 over ethernet for now.
+  struct ether_addr *sha = (struct ether_addr *)packet;
+  packet += arp->ar_hln;
+  length -= arp->ar_hln;
+  struct in_addr *spa = (struct in_addr *)packet;
+  packet += arp->ar_pln;
+  length -= arp->ar_pln;
+  struct ether_addr *tha = (struct ether_addr *)packet;
+  packet += arp->ar_hln;
+  length -= arp->ar_hln;
+  struct in_addr *tpa = (struct in_addr *)packet;
+  packet += arp->ar_pln;
+  length -= arp->ar_pln;
+
+  switch (op) {
+    case ARPOP_REQUEST:
+      DEBUGF("ARP request, who has %s (%s)? Tell %s (%s)", inet_ntoa(*tpa), ether_ntoa(tha), inet_ntoa(*spa), ether_ntoa(sha));
+      break;
+    case ARPOP_REPLY:
+      DEBUGF("ARP reply, %s is at %s", inet_ntoa(*spa), ether_ntoa(sha));
+      break;
+    default:
+      DEBUGF("Unhandled ARP op: %04x, tpa: %s, tha: %s, spa: %s, sha: %s",
+             op, inet_ntoa(*tpa), ether_ntoa(tha), inet_ntoa(*spa), ether_ntoa(sha));
+      break;
+  }
+
+  if (length > 0) {
+    WARN("Garbage after ARP packet");
+    handle_raw(length, packet);
+  }
+}
+
 static network_handler handlers[] = {
   [ETHERTYPE_IP] = handle_ip,
   [ETHERTYPE_IPV6] = handle_ip6,
   [ETHERTYPE_PUP] = handle_unknown,
-  [ETHERTYPE_ARP] = handle_unknown,
+  [ETHERTYPE_ARP] = handle_arp,
   [ETHERTYPE_REVARP] = handle_unknown,
   [ETHERTYPE_VLAN] = handle_vlan,
   [ETHERTYPE_PAE] = handle_unknown,

@@ -2,6 +2,7 @@
 #define __UTIL_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 // Permet de définir LOG_LEVEL à une constante, à la compilation ou par
 // programme. C'est le cas de dump, qui a son niveau de log au maximum, quoi
@@ -76,5 +77,6 @@
 
 int get_log_level();
 void set_log_level(int);
+void handle_raw(const uint32_t length, const uint8_t *packet);
 
 #endif
