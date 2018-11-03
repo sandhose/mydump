@@ -4,6 +4,7 @@
 #include <netinet/ip6.h>
 
 #include "ether.h"
+#include "vlan.h"
 #include "protocol.h"
 #include "util.h"
 
@@ -34,13 +35,21 @@ static void handle_ip6(uint32_t length, const uint8_t *packet) {
   handle_protocol_payload(ip6->ip6_nxt, length, packet);
 }
 
+static void handle_vlan(uint32_t length, const uint8_t *packet) {
+  struct vlan_hdr *vlan = (struct vlan_hdr *)packet;
+  APPLY_OVERHEAD(struct vlan_hdr, length, packet);
+  DEBUGF("VLAN vid: %d, type: %04x",
+         htons(vlan->vlan_vid) & VLAN_VID_MASK, htons(vlan->ether_type));
+  handle_ether_payload(htons(vlan->ether_type), length, packet);
+}
+
 static network_handler handlers[] = {
   [ETHERTYPE_IP] = handle_ip,
   [ETHERTYPE_IPV6] = handle_ip6,
   [ETHERTYPE_PUP] = handle_unknown,
   [ETHERTYPE_ARP] = handle_unknown,
   [ETHERTYPE_REVARP] = handle_unknown,
-  [ETHERTYPE_VLAN] = handle_unknown,
+  [ETHERTYPE_VLAN] = handle_vlan,
   [ETHERTYPE_PAE] = handle_unknown,
   [ETHERTYPE_RSN_PREAUTH] = handle_unknown,
   [ETHERTYPE_PTP] = handle_unknown,

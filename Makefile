@@ -6,7 +6,7 @@ BIN = main
 
 $(BIN): $(OBJ)
 
-ether.o: ether.c ether.h protocol.h util.h
+ether.o: ether.c ether.h vlan.h protocol.h util.h
 link.o: link.c aftypes.h ether.h link.h util.h
 main.o: main.c aftypes.h link.h util.h
 protocol.o: protocol.c protocol.h util.h
