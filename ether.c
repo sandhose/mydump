@@ -4,6 +4,7 @@
 #include <netinet/ip6.h>
 
 #include "ether.h"
+#include "protocol.h"
 #include "util.h"
 
 static void handle_unknown(uint32_t length, const uint8_t *packet) {
@@ -18,6 +19,7 @@ static void handle_ip(uint32_t length, const uint8_t *packet) {
          inet_ntoa(ip->ip_src),
          inet_ntoa(ip->ip_dst),
          ip->ip_p);
+  handle_protocol_payload(ip->ip_p, length, packet);
 }
 
 static void handle_ip6(uint32_t length, const uint8_t *packet) {
@@ -29,6 +31,7 @@ static void handle_ip6(uint32_t length, const uint8_t *packet) {
          inet_ntop(AF_INET6, &(ip6->ip6_src), src, INET6_ADDRSTRLEN),
          inet_ntop(AF_INET6, &(ip6->ip6_dst), dst, INET6_ADDRSTRLEN),
          ip6->ip6_nxt);
+  handle_protocol_payload(ip6->ip6_nxt, length, packet);
 }
 
 static network_handler handlers[] = {
@@ -53,7 +56,7 @@ network_handler resolve_network_handler(const uint16_t ether_type) {
 void handle_ether_payload(const uint16_t ether_type, const uint32_t length, const uint8_t *packet) {
   network_handler handler = resolve_network_handler(ether_type);
   if (handler == NULL) {
-    DEBUGF("Unknown ethertype %#04x", ether_type);
+    WARNF("Unknown ethertype %#04x", ether_type);
     return;
   }
 

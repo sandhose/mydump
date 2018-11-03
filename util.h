@@ -66,8 +66,8 @@
 #define APPLY_OVERHEAD(structure, length, packet)                              \
   {                                                                            \
     uint16_t overhead = sizeof(structure);                                     \
-    if ((length) - (overhead) < sizeof(structure)) {                           \
-      WARNF("Packet too small (%d < %d)", (length), (overhead));               \
+    if ((length) < overhead) {                                                 \
+      WARNF("Packet too small (%d < %d)", (length), overhead);                 \
       return;                                                                  \
     }                                                                          \
     length -= overhead;                                                        \
