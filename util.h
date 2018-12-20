@@ -64,16 +64,18 @@
     }                                                                          \
   }
 
-#define APPLY_OVERHEAD(structure, length, packet)                              \
+#define APPLY_OVERHEAD_S(overhead, length, packet)                             \
   {                                                                            \
-    uint16_t overhead = sizeof(structure);                                     \
-    if ((length) < overhead) {                                                 \
-      WARNF("Packet too small (%d < %d)", (length), overhead);                 \
+    if ((int)(length) < (int)(overhead)) {                                     \
+      WARNF("Packet too small (%d < %d)", (length), (int)(overhead));          \
       return;                                                                  \
     }                                                                          \
-    length -= overhead;                                                        \
-    packet += overhead;                                                        \
+    length -= (overhead);                                                      \
+    packet += (overhead);                                                      \
   }
+
+#define APPLY_OVERHEAD(structure, length, packet)                              \
+    APPLY_OVERHEAD_S(sizeof(structure), length, packet)
 
 int get_log_level();
 void set_log_level(int);

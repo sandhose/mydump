@@ -1,7 +1,7 @@
 CFLAGS := -g -Wall -Wextra -Werror -pedantic --std=c99 `pcap-config --cflags`
 LDFLAGS := -g `pcap-config --libs`
 
-OBJ = main.o link.o ether.o util.o protocol.o
+OBJ = main.o link.o ether.o util.o protocol.o udp.o
 BIN = main
 
 $(BIN): $(OBJ)

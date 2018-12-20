@@ -6,6 +6,7 @@
 #include <netinet/tcp.h>
 
 #include "protocol.h"
+#include "udp.h"
 #include "util.h"
 
 static void handle_icmp(uint32_t length, const uint8_t* packet) {
@@ -28,7 +29,8 @@ static void handle_udp(uint32_t length, const uint8_t* packet) {
          htons(udp->uh_dport),
          htons(udp->uh_ulen),
          htons(udp->uh_sum))
-  // TODO: handle application layer
+
+  handle_udp_payload(htons(udp->uh_sport), htons(udp->uh_dport), length, packet);
 }
 
 static void handle_tcp(uint32_t length, const uint8_t* packet) {
@@ -41,7 +43,7 @@ static void handle_tcp(uint32_t length, const uint8_t* packet) {
   // TODO: reassemble packets and handle application layer
 }
 
-protocol_handler handlers[] = {
+static protocol_handler handlers[] = {
   [IPPROTO_ICMP] = handle_icmp,
   [IPPROTO_ICMPV6] = handle_icmpv6,
   [IPPROTO_UDP] = handle_udp,
