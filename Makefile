@@ -1,4 +1,4 @@
-CFLAGS := -g -Wall -Wextra -Werror -pedantic --std=c99 `pcap-config --cflags`
+CFLAGS := -g -Wall -Wextra -Werror --std=c99 `pcap-config --cflags` -D_DEFAULT_SOURCE
 LDFLAGS := -g `pcap-config --libs`
 
 OBJ = main.o link.o ether.o util.o protocol.o udp.o

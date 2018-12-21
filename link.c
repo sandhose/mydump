@@ -1,3 +1,5 @@
+#include <netinet/ether.h>
+#include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <pcap/dlt.h>
 #include <ctype.h>

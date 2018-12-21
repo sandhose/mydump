@@ -3,16 +3,12 @@
 #include <net/if_arp.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
+#include <netinet/ether.h>
 
 #include "ether.h"
 #include "vlan.h"
 #include "protocol.h"
 #include "util.h"
-
-static void handle_unknown(uint32_t length, const uint8_t *packet) {
-  (void)packet;
-  DEBUGF("Unhandled network packet (length: %d)", length);
-}
 
 static void handle_ip(uint32_t length, const uint8_t *packet) {
   struct ip *ip = (struct ip *)packet;
@@ -49,7 +45,7 @@ static void handle_arp(uint32_t length, const uint8_t *packet) {
   APPLY_OVERHEAD(struct arphdr, length, packet);
   uint16_t op = htons(arp->ar_op);
 
-  if ((arp->ar_hln + arp->ar_pln) * 2 > length) {
+  if ((arp->ar_hln + arp->ar_pln) * 2 > (int16_t)length) {
     WARNF("ARP packet too small (op: %04x, hrd: %04x, pro: %04x, hln: %d, pln: %d)",
           op, htons(arp->ar_hrd), htons(arp->ar_pro), arp->ar_hln, arp->ar_pln);
     return;
@@ -91,14 +87,8 @@ static void handle_arp(uint32_t length, const uint8_t *packet) {
 static network_handler handlers[] = {
   [ETHERTYPE_IP] = handle_ip,
   [ETHERTYPE_IPV6] = handle_ip6,
-  [ETHERTYPE_PUP] = handle_unknown,
   [ETHERTYPE_ARP] = handle_arp,
-  [ETHERTYPE_REVARP] = handle_unknown,
   [ETHERTYPE_VLAN] = handle_vlan,
-  [ETHERTYPE_PAE] = handle_unknown,
-  [ETHERTYPE_RSN_PREAUTH] = handle_unknown,
-  [ETHERTYPE_PTP] = handle_unknown,
-  [ETHERTYPE_LOOPBACK] = handle_unknown,
 };
 
 network_handler resolve_network_handler(const uint16_t ether_type) {

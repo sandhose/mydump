@@ -6,7 +6,7 @@
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
 
-#include <netinet/bootp.h>
+#include "bootp.h"
 
 #include "dns.h"
 #include "udp.h"
