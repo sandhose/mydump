@@ -10,6 +10,8 @@
 
 #include "udp.h"
 #include "util.h"
+#include "link.h"
+#include "vxlan.h"
 
 #define DHCP_MAGIC 0x63538263
 
@@ -149,9 +151,19 @@ static void handle_bootp(uint32_t length, const uint8_t* packet) {
   }
 }
 
+static void handle_vxlan(uint32_t length, const uint8_t* packet) {
+  struct vxlan_hdr *vxlan = (struct vxlan_hdr *)packet;
+  APPLY_OVERHEAD(struct vxlan_hdr, length, packet);
+  DEBUGF("VXLAN vni: 0x%06x", vxlan->vni);
+  indent_log();
+  handle_ethernet(length, packet);
+  dedent_log();
+}
+
 static udp_handler handlers[] = {
   [67] = handle_bootp,
   [68] = handle_bootp,
+  [4789] = handle_vxlan,
 };
 
 udp_handler resolve_udp_handler(const uint16_t port) {

@@ -66,8 +66,7 @@ static void handle_null(uint32_t length, const uint8_t *packet) {
 #endif
 
 // Ethernet devices
-#ifdef DLT_EN10MB
-static void handle_ethernet(uint32_t length, const uint8_t *packet) {
+void handle_ethernet(uint32_t length, const uint8_t *packet) {
   struct ether_header *ethernet = (struct ether_header *)packet;
   APPLY_OVERHEAD(struct ether_header, length, packet);
 
@@ -78,7 +77,6 @@ static void handle_ethernet(uint32_t length, const uint8_t *packet) {
          length);
   handle_ether_payload(htons(ethernet->ether_type), length, packet);
 }
-#endif
 
 static link_handler handlers[] = {
 #ifdef DLT_NULL
