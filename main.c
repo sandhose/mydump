@@ -42,6 +42,7 @@ void got_packet(uint8_t *args, const struct pcap_pkthdr *header, const uint8_t *
   handler(header->caplen, packet);
   indent_reset();
   PRINTF("\n");
+  fflush(stdout);
 }
 
 void usage (char *progname) {
