@@ -20,6 +20,7 @@ static void handle_ip(uint32_t length, const uint8_t *packet) {
          inet_ntoa(ip->ip_src),
          inet_ntoa(ip->ip_dst),
          ip->ip_p);
+  PRINTF("IPv4 %s -> %s, ", inet_ntoa(ip->ip_src), inet_ntoa(ip->ip_dst));
   handle_protocol_payload(ip->ip_p, length, packet);
 }
 
@@ -32,6 +33,9 @@ static void handle_ip6(uint32_t length, const uint8_t *packet) {
          inet_ntop(AF_INET6, &(ip6->ip6_src), src, INET6_ADDRSTRLEN),
          inet_ntop(AF_INET6, &(ip6->ip6_dst), dst, INET6_ADDRSTRLEN),
          ip6->ip6_nxt);
+  PRINTF("IPv6 %s -> %s, ",
+         inet_ntop(AF_INET6, &(ip6->ip6_src), src, INET6_ADDRSTRLEN),
+         inet_ntop(AF_INET6, &(ip6->ip6_dst), dst, INET6_ADDRSTRLEN));
   handle_protocol_payload(ip6->ip6_nxt, length, packet);
 }
 
@@ -40,6 +44,7 @@ static void handle_vlan(uint32_t length, const uint8_t *packet) {
   APPLY_OVERHEAD(struct vlan_hdr, length, packet);
   DEBUGF("VLAN vid: %d, type: %04x",
          htons(vlan->vlan_vid) & VLAN_VID_MASK, htons(vlan->ether_type));
+  PRINTF("VLAN %d, ", htons(vlan->vlan_vid));
   handle_ether_payload(htons(vlan->ether_type), length, packet);
 }
 
@@ -71,9 +76,11 @@ static void handle_arp(uint32_t length, const uint8_t *packet) {
   switch (op) {
     case ARPOP_REQUEST:
       DEBUGF("ARP request, who has %s (%s)? Tell %s (%s)", inet_ntoa(*tpa), ether_ntoa(tha), inet_ntoa(*spa), ether_ntoa(sha));
+      PRINTF("ARP request");
       break;
     case ARPOP_REPLY:
       DEBUGF("ARP reply, %s is at %s", inet_ntoa(*spa), ether_ntoa(sha));
+      PRINTF("ARP reply");
       break;
     default:
       DEBUGF("Unhandled ARP op: %04x, tpa: %s, tha: %s, spa: %s, sha: %s",

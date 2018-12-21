@@ -58,6 +58,7 @@ static void handle_bootp(uint32_t length, const uint8_t* packet) {
   APPLY_OVERHEAD_S(sizeof(struct bootp) - 64, length, packet);
 
   DEBUGF("BOOTP op:%x htype:%x len:%d hops:%d xid:%x", bootp->bp_op, bootp->bp_htype, bootp->bp_hlen, bootp->bp_hops, bootp->bp_xid);
+  PRINTF("BOOTP %s", bootp->bp_op == 1 ? "request" : "reply");
 
   int *magic = (int *)packet;
   APPLY_OVERHEAD(int, length, packet);
@@ -172,6 +173,7 @@ static void handle_dns(uint32_t length, const uint8_t* packet) {
   DEBUGF("DNS id:0x%04x qr:%d opcode:0x%02x aa:%d tc:%d rd:%d ra:%d z:%d rcode:%d qdcount:%d ancount:%d nscount:%d arcount:%d",
          htons(dns->id), dns->qr, dns->opcode, dns->aa, dns->tc, dns->rd, dns->ra, dns->z, dns->rcode,
          qdcount, ancount, nscount, arcount);
+  PRINTF("DNS");
   // TODO: decode queries and answers
 }
 
@@ -197,6 +199,6 @@ void handle_udp_payload(const uint16_t sport, const uint16_t dport, const uint32
   if (handler != NULL)
     handler(length, packet);
   else
-    DEBUG("No UDP handler.");
+    handle_raw(length, packet);
   dedent_log();
 }

@@ -41,6 +41,7 @@ void got_packet(uint8_t *args, const struct pcap_pkthdr *header, const uint8_t *
   link_handler handler = (link_handler)args;
   handler(header->caplen, packet);
   indent_reset();
+  PRINTF("\n");
 }
 
 void usage (char *progname) {
@@ -52,7 +53,7 @@ int main (int argc, char **argv) {
   enum mode mode = M_NONE;
   char *mode_arg = NULL;
   char *filter = NULL;
-  char verbose = 1;
+  char verbose = LEVEL_WARN;
 
   int c;
 

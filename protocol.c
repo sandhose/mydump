@@ -13,12 +13,14 @@ static void handle_icmp(uint32_t length, const uint8_t* packet) {
   struct icmp* icmp = (struct icmp*)packet;
   APPLY_OVERHEAD(struct icmp, length, packet);
   DEBUGF("ICMP type: 0x%02x", icmp->icmp_type);
+  PRINTF("ICMP type: 0x%02x", icmp->icmp_type);
 }
 
 static void handle_icmpv6(uint32_t length, const uint8_t* packet) {
   struct icmp6_hdr* icmp6 = (struct icmp6_hdr*)packet;
   APPLY_OVERHEAD(struct icmp6_hdr, length, packet);
   DEBUGF("ICMPv6 type: 0x%02x", icmp6->icmp6_type);
+  PRINTF("ICMPv6 type: 0x%02x", icmp6->icmp6_type);
 }
 
 static void handle_udp(uint32_t length, const uint8_t* packet) {
@@ -29,6 +31,9 @@ static void handle_udp(uint32_t length, const uint8_t* packet) {
          htons(udp->uh_dport),
          htons(udp->uh_ulen),
          htons(udp->uh_sum))
+  PRINTF("UDP port %d -> %d, ",
+         htons(udp->uh_sport),
+         htons(udp->uh_dport));
 
   handle_udp_payload(htons(udp->uh_sport), htons(udp->uh_dport), length, packet);
 }
@@ -40,6 +45,12 @@ static void handle_tcp(uint32_t length, const uint8_t* packet) {
          htons(tcp->th_sport),
          htons(tcp->th_dport),
          htons(tcp->th_sum))
+  PRINTF("TCP port %d -> %d, ",
+         htons(tcp->th_sport),
+         htons(tcp->th_dport));
+  indent_log();
+  handle_raw(length, packet);
+  dedent_log();
   // TODO: reassemble packets and handle application layer
 }
 

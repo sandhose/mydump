@@ -64,6 +64,12 @@
     }                                                                          \
   }
 
+#define PRINTF(...) \
+  {                                                                            \
+    if (LOG_LEVEL < LEVEL_DEBUG)                                               \
+      printf(__VA_ARGS__);                                                     \
+  }
+
 #define APPLY_OVERHEAD_S(overhead, length, packet)                             \
   {                                                                            \
     if ((int)(length) < (int)(overhead)) {                                     \

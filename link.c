@@ -30,6 +30,8 @@ static void handle_linux_sll(uint32_t length, const uint8_t *packet) {
          ether_ntoa((struct ether_addr *)linux_sll->source_address),
          htons(linux_sll->ether_type),
          length);
+  PRINTF("Linux SLL %s, ",
+         ether_ntoa((struct ether_addr *)linux_sll->source_address));
   handle_ether_payload(htons(linux_sll->ether_type), length, packet);
 }
 #endif
@@ -66,6 +68,7 @@ static void handle_null(uint32_t length, const uint8_t *packet) {
   APPLY_OVERHEAD(struct null_header, length, packet);
 
   DEBUGF("Null packet type: 0x%04x, length: %d", null->af_type, length);
+  PRINTF("Loopback, ");
   handle_ether_payload(af_to_ethertype(null->af_type), length, packet);
 }
 #endif
@@ -80,6 +83,9 @@ void handle_ethernet(uint32_t length, const uint8_t *packet) {
          ether_ntoa((struct ether_addr *)ethernet->ether_shost),
          htons(ethernet->ether_type),
          length);
+  PRINTF("Ethernet %s -> %s, ",
+         ether_ntoa((struct ether_addr *)ethernet->ether_dhost),
+         ether_ntoa((struct ether_addr *)ethernet->ether_shost));
   handle_ether_payload(htons(ethernet->ether_type), length, packet);
 }
 
