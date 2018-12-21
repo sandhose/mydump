@@ -1,9 +1,12 @@
+#ifndef __MACH__
+#include <netinet/ether.h>
+#endif
+
 #include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <net/if_arp.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
-#include <netinet/ether.h>
 
 #include "ether.h"
 #include "vlan.h"

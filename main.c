@@ -43,6 +43,11 @@ void got_packet(uint8_t *args, const struct pcap_pkthdr *header, const uint8_t *
   indent_reset();
 }
 
+void usage (char *progname) {
+  fprintf(stderr, "usage: %s <-i interface|-o file> [-f filter] [-v]\n", progname);
+  exit(EXIT_FAILURE);
+}
+
 int main (int argc, char **argv) {
   enum mode mode = M_NONE;
   char *mode_arg = NULL;
@@ -54,8 +59,7 @@ int main (int argc, char **argv) {
   opterr = 0;
 
   while ((c = getopt (argc, argv, "i:o:f:v")) != -1)
-    switch (c)
-      {
+    switch (c) {
       case 'i':
         mode = M_LIVE;
         mode_arg = optarg;
@@ -79,14 +83,15 @@ int main (int argc, char **argv) {
         } else {
           ERRORF("Unknown option character `\\x%x'.", optopt);
         }
-        return 1;
+        usage (argv[0]);
       default:
         abort ();
-      }
+    }
 
   INFOF("Options parsed ; mode: %d, arg: %s, filter: %s", mode, mode_arg, filter);
-  assert(mode != M_NONE);
-  assert(optind >= argc);
+
+  if (mode == M_NONE || optind >= argc)
+    usage (argv[0]);
 
   pcap_t* capture = open_capture(mode, mode_arg);
   if (capture == NULL) {

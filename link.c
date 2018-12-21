@@ -1,4 +1,7 @@
+#ifndef __MACH__
 #include <netinet/ether.h>
+#endif
+
 #include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <pcap/dlt.h>
