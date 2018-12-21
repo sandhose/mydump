@@ -90,7 +90,7 @@ int main (int argc, char **argv) {
 
   INFOF("Options parsed ; mode: %d, arg: %s, filter: %s", mode, mode_arg, filter);
 
-  if (mode == M_NONE || optind >= argc)
+  if (mode == M_NONE || optind > argc)
     usage (argv[0]);
 
   pcap_t* capture = open_capture(mode, mode_arg);
