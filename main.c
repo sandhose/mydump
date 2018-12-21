@@ -40,6 +40,7 @@ pcap_t* open_capture(enum mode mode, const char *arg) {
 void got_packet(uint8_t *args, const struct pcap_pkthdr *header, const uint8_t *packet) {
   link_handler handler = (link_handler)args;
   handler(header->caplen, packet);
+  indent_reset();
 }
 
 int main (int argc, char **argv) {

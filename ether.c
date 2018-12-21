@@ -114,5 +114,7 @@ void handle_ether_payload(const uint16_t ether_type, const uint32_t length, cons
     return;
   }
 
+  indent_log();
   handler(length, packet);
+  dedent_log();
 }

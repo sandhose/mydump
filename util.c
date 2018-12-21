@@ -2,6 +2,9 @@
 
 #include "util.h"
 
+char logindent[256] = "";
+static uint8_t indent_level = 0;
+
 int log_level = LEVEL_ERROR;
 int get_log_level() { return log_level; }
 void set_log_level(int l) { log_level = l; }
@@ -39,4 +42,20 @@ void handle_raw(const uint32_t length, const uint8_t *packet) {
     printf("\n");
   }
   fflush(stdout);
+}
+
+void dedent_log(void) {
+  indent_level -= 2;
+  logindent[indent_level] = '\0';
+}
+
+void indent_log(void) {
+  logindent[indent_level++] = ' ';
+  logindent[indent_level++] = ' ';
+  logindent[indent_level] = '\0';
+}
+
+void indent_reset(void) {
+  indent_level = 0;
+  logindent[0] = '\0';
 }

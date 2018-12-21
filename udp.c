@@ -67,6 +67,7 @@ static void handle_bootp(uint32_t length, const uint8_t* packet) {
       u_char *optpayload = (u_char *)packet;
       APPLY_OVERHEAD_S(*optlen, length, packet);
 
+      indent_log();
       switch (opt) {
         case 0: // Pad
           break;
@@ -143,6 +144,7 @@ static void handle_bootp(uint32_t length, const uint8_t* packet) {
           break;
         }
       }
+      dedent_log();
     }
   }
 }
@@ -163,8 +165,10 @@ void handle_udp_payload(const uint16_t sport, const uint16_t dport, const uint32
   if (handler == NULL)
     handler = resolve_udp_handler(sport);
 
+  indent_log();
   if (handler != NULL)
     handler(length, packet);
   else
     DEBUG("No UDP handler.");
+  dedent_log();
 }

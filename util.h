@@ -28,16 +28,16 @@
 // À chaque fois, une variante avec et sans formattage à la printf.
 // J'ai dû séparer pour pas avoir à traîner des retours à la ligne, et quand
 // même faire un seul appel à fprintf.
-#define FATAL(MSG) LOG(FATAL, MSG "\n")
-#define FATALF(MSG, ...) LOG(FATAL, MSG "\n", __VA_ARGS__)
-#define ERROR(MSG) LOG(ERROR, MSG "\n")
-#define ERRORF(MSG, ...) LOG(ERROR, MSG "\n", __VA_ARGS__)
-#define WARN(MSG) LOG(WARN, MSG "\n")
-#define WARNF(MSG, ...) LOG(WARN, MSG "\n", __VA_ARGS__)
-#define INFO(MSG) LOG(INFO, MSG "\n")
-#define INFOF(MSG, ...) LOG(INFO, MSG "\n", __VA_ARGS__)
-#define DEBUG(MSG) LOG(DEBUG, MSG "\n")
-#define DEBUGF(MSG, ...) LOG(DEBUG, MSG "\n", __VA_ARGS__)
+#define FATAL(MSG) LOG(FATAL, MSG "\n", logindent)
+#define FATALF(MSG, ...) LOG(FATAL, MSG "\n", logindent, __VA_ARGS__)
+#define ERROR(MSG) LOG(ERROR, MSG "\n", logindent)
+#define ERRORF(MSG, ...) LOG(ERROR, MSG "\n", logindent, __VA_ARGS__)
+#define WARN(MSG) LOG(WARN, MSG "\n", logindent)
+#define WARNF(MSG, ...) LOG(WARN, MSG "\n", logindent, __VA_ARGS__)
+#define INFO(MSG) LOG(INFO, MSG "\n", logindent)
+#define INFOF(MSG, ...) LOG(INFO, MSG "\n", logindent, __VA_ARGS__)
+#define DEBUG(MSG) LOG(DEBUG, MSG "\n", logindent)
+#define DEBUGF(MSG, ...) LOG(DEBUG, MSG "\n", logindent, __VA_ARGS__)
 
 // Double expansion technique to convert __LINE__ into string literal
 #define S(x) #x
@@ -55,7 +55,7 @@
 
 // Macro interne pour formatter un message de logs (en couleur), avec
 // [niveau] [fichier]:[ligne] [message]
-#define LOG_FMT(LEVEL, ...) LEVEL_FMT(LEVEL) "\t" LOC_FMT "\t" __VA_ARGS__
+#define LOG_FMT(LEVEL, ...) LEVEL_FMT(LEVEL) "\t" LOC_FMT "\t%s" __VA_ARGS__
 #define LOG(LEVEL, ...)                                                        \
   {                                                                            \
     if (LEVEL_##LEVEL <= LOG_LEVEL) {                                          \
@@ -77,8 +77,13 @@
 #define APPLY_OVERHEAD(structure, length, packet)                              \
     APPLY_OVERHEAD_S(sizeof(structure), length, packet)
 
+extern char logindent[256];
+
 int get_log_level();
 void set_log_level(int);
 void handle_raw(const uint32_t length, const uint8_t *packet);
+void indent_log(void);
+void dedent_log(void);
+void indent_reset(void);
 
 #endif

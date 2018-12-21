@@ -63,5 +63,7 @@ void handle_protocol_payload(const uint16_t protocol, const uint32_t length, con
     return;
   }
 
+  indent_log();
   handler(length, packet);
+  dedent_log();
 }
