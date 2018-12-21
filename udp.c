@@ -8,6 +8,7 @@
 
 #include <netinet/bootp.h>
 
+#include "dns.h"
 #include "udp.h"
 #include "util.h"
 #include "link.h"
@@ -160,7 +161,22 @@ static void handle_vxlan(uint32_t length, const uint8_t* packet) {
   dedent_log();
 }
 
+static void handle_dns(uint32_t length, const uint8_t* packet) {
+  struct dns_hdr *dns = (struct dns_hdr *)packet;
+  APPLY_OVERHEAD(struct dns_hdr, length, packet);
+  uint16_t qdcount = htons(dns->qdcount);
+  uint16_t ancount = htons(dns->ancount);
+  uint16_t nscount = htons(dns->nscount);
+  uint16_t arcount = htons(dns->arcount);
+
+  DEBUGF("DNS id:0x%04x qr:%d opcode:0x%02x aa:%d tc:%d rd:%d ra:%d z:%d rcode:%d qdcount:%d ancount:%d nscount:%d arcount:%d",
+         htons(dns->id), dns->qr, dns->opcode, dns->aa, dns->tc, dns->rd, dns->ra, dns->z, dns->rcode,
+         qdcount, ancount, nscount, arcount);
+  // TODO: decode queries and answers
+}
+
 static udp_handler handlers[] = {
+  [53] = handle_dns,
   [67] = handle_bootp,
   [68] = handle_bootp,
   [4789] = handle_vxlan,
